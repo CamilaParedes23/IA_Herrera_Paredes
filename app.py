@@ -1,0 +1,24 @@
+from flask import Flask, render_template, request, jsonify
+import pickle
+
+app = Flask(__name__)
+
+# Cargar el modelo y el vectorizador
+with open('modelo_sentimientos.pkl', 'rb') as f:
+    model = pickle.load(f)
+with open('vectorizador.pkl', 'rb') as f:
+    vectorizer = pickle.load(f)
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/analizar', methods=['POST'])
+def analizar():
+    texto = request.form['texto']
+    X = vectorizer.transform([texto])
+    sentimiento = model.predict(X)[0]
+    return jsonify({'sentimiento': sentimiento})
+
+if __name__ == '__main__':
+    app.run(debug=True)
